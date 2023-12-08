@@ -1,55 +1,137 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using System.Windows;
-using MahAppBase.Command;
-using MahAppBase.CustomerUserControl;
 
-namespace MahAppBase.ViewModel
+namespace MahAppBase
 {
-    public class MainComponent
-    {
-        #region Declarations
-        ucDonate donate = new ucDonate();
-        #endregion
+	public class MainComponent: ViewModelBase
+	{
+		#region Declarations
+		private ObservableCollection<StockData> _StockData = new ObservableCollection<StockData>();
+		const int maximum = 100;
+		const int minimum = 1;
+		private int _UpdateFrequence = 1;
 
-        #region Property
-        public NoParameterCommand ButtonDonateClick { get; set; }
-        public bool DonateIsOpen { get; set; }
-        #endregion
+		#endregion
 
-        #region MemberFunction
-        public MainComponent()
-        {
-            ButtonDonateClick = new NoParameterCommand(ButtonDonateClickAction);
-        }
+		#region Property
+		/// <summary>
+		/// 增加價格跳動頻率
+		/// </summary>
+		public NoParameterCommand AddFrequenceCommand { get; set; }
 
-        public void ButtonDonateClickAction()
-        {
-            if (!DonateIsOpen)
-            {
-                donate = new ucDonate
-                {
-                    Topmost = true
-                };
-                donate.Closed += Donate_Closed;
-                DonateIsOpen = true;
-                donate.Show();
-            }
-            else
-            {
+		/// <summary>
+		/// 減少價格跳動頻率
+		/// </summary>
+		public NoParameterCommand ReduceFrequenceCommand { get; set; }
+		/// <summary>
+		/// 價格跳動頻率
+		/// </summary>
+		public int UpdateFrequence
+		{
+			get
+			{
+				return _UpdateFrequence;
+			}
+			set
+			{
+				_UpdateFrequence = value;
+				OnPropertyChanged();
+			}
+		}
 
-            }
-        }
+		/// <summary>
+		/// 股票資料集合
+		/// </summary>
+		public ObservableCollection<StockData> StockData
+		{
+			get
+			{
+				return _StockData;
+			}
+			set
+			{
+				_StockData = value;
+				OnPropertyChanged();
+			}
+		}
+		#endregion
 
-        private void Donate_Closed(object sender, EventArgs e)
-        {
-            DonateIsOpen = false;
-        }
+		#region MemberFunction
+		public MainComponent()
+		{
+			//模擬假的200檔股票
+			InitialMockQuoteDataCollection();
 
-        #endregion
-    }
+			//初始化Command
+			InitialCommand();
+
+			//模擬股票報價服務
+			InitialMockQuoteService();
+
+		}
+
+		private void InitialCommand()
+		{
+			AddFrequenceCommand = new NoParameterCommand(AddFrequenceCommandAction);
+			ReduceFrequenceCommand = new NoParameterCommand(ReduceFrequenceCommandAction);
+
+		}
+
+		/// <summary>
+		/// 減少價格跳動頻率
+		/// </summary>
+		private void ReduceFrequenceCommandAction()
+		{
+			UpdateFrequence--;
+
+		}
+
+		/// <summary>
+		/// 增加價格跳動頻率
+		/// </summary>
+		private void AddFrequenceCommandAction()
+		{
+			UpdateFrequence++;
+		}
+
+		/// <summary>
+		/// 模擬假的200檔股票
+		/// </summary>
+		private void InitialMockQuoteDataCollection()
+		{
+
+			Random radom = new Random();
+			for (int i = 1;i < 201;i++)
+			{
+				double yesterdayClosePrice = Math.Round(radom.NextDouble() * (maximum - minimum) + minimum, 2);
+				StockData.Add(new MahAppBase.StockData()
+				{
+					StockName = $"股票00{i}({i.ToString().PadLeft(4, '0')})",
+					Price = yesterdayClosePrice,
+					QuoteChange = 0.0,
+					ClosePrice = yesterdayClosePrice
+				});
+			}
+
+		}
+
+		/// <summary>
+		/// 初始化模擬報價服務
+		/// </summary>
+		private async void InitialMockQuoteService()
+		{
+			await Task.Run(async () =>
+			{
+				Random radom = new Random();
+				while (true)
+				{
+					var updateDataIndex = radom.Next(1, 200);
+					StockData[updateDataIndex].Price = Math.Round(radom.NextDouble() * (maximum - minimum) + minimum, 2);
+					await Task.Delay(UpdateFrequence);
+				}
+			});
+		}
+		#endregion
+	}
 }

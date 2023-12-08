@@ -4,26 +4,24 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:viewModel="clr-namespace:MahAppBase.ViewModel"
         xmlns:local="clr-namespace:MahAppBase"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
         Title="" Height="450" Width="800">
     <Window.Resources>
-        <viewModel:Status x:Key="Status"/>
-        <viewModel:MainComponent x:Key="MainComponent"/>
+        <Style TargetType="DataGridCell" x:Key="Cell">
+            <Setter Property="Foreground" Value="Black"/>
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation Storyboard.TargetProperty="Background.Color" From="OrangeRed" To="Transparent" Duration="0:0:1.5"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
-    <controls:MetroWindow.RightWindowCommands >
-        <controls:WindowCommands DataContext="{Binding Source={StaticResource MainComponent}}">
-            <Button Command="{Binding ButtonDonateClick}">
-                <StackPanel Orientation="Horizontal">
-                    <iconPacks:PackIconModern Width="24" Height="24" Kind="Beer" />
-                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Donate Developer" />
-                </StackPanel>
-            </Button>
-            <Button Content="Settings"/>
-        </controls:WindowCommands>
-    </controls:MetroWindow.RightWindowCommands>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -31,27 +29,37 @@
         </Grid.RowDefinitions>
         <controls:MetroAnimatedTabControl Grid.Row="0">
             <controls:MetroTabItem Header="TabItem1">
-            </controls:MetroTabItem>
-            <controls:MetroTabItem Header="TabItem2">
-            </controls:MetroTabItem>
-            <controls:MetroTabItem Header="TabItem3">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="18"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="10"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                            <TextBlock Text="股價跳動頻率" VerticalAlignment="Center" FontSize="20"/>
+                            <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding UpdateFrequence}" Width="50" Height="30" Margin="10,0" BorderBrush="Transparent" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                                <TextBlock Text="ms" VerticalAlignment="Center"/>
+                                <StackPanel Orientation="Vertical" Margin="10,0,0,0">
+                                    <Button Content="+" FontSize="10" Height="5" Background="Transparent" BorderBrush="Transparent" Command="{Binding AddFrequenceCommand}"/>
+                                    <Button Content="-" FontSize="10" Height="5" Background="Transparent" BorderBrush="Transparent" Command="{Binding ReduceFrequenceCommand}"/>
+                            </StackPanel>
+                                
+                            </StackPanel>
+                    </StackPanel>
+                    
+                    <DataGrid ItemsSource="{Binding StockData}" AutoGenerateColumns="False" Grid.Row="4" CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding StockName,NotifyOnTargetUpdated=True}" Header="股票名稱" Width="150"/>
+                            <DataGridTextColumn Binding="{Binding Price,NotifyOnTargetUpdated=True}" Header="成交價" Width="100" CellStyle="{StaticResource Cell}"/>
+                            <DataGridTextColumn Binding="{Binding QuoteChange,NotifyOnTargetUpdated=True}" Header="漲跌" Width="100" CellStyle="{StaticResource Cell}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
             </controls:MetroTabItem>
         </controls:MetroAnimatedTabControl>
-        <StatusBar DataContext="{Binding Source={StaticResource Status}}" Grid.Row="1">
-            <StatusBarItem>
-                <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
-                    <TextBlock Text="Cpu" HorizontalAlignment="Center" Margin="0,0,8,0" FontWeight="Bold"/>
-                    <Grid>
-                        <ProgressBar Minimum="0" Maximum="50" Value="{Binding Cpu}" Width="100" VerticalAlignment="Top" Height="15" FontWeight="Heavy"/>
-                        <TextBlock Text="{Binding Cpu}" TextAlignment="Center" FontWeight="Bold"/>
-                    </Grid>
-                    <TextBlock Text="Memory" Margin="30,0,8,0" FontWeight="Bold"/>
-                    <Grid>
-                        <ProgressBar Value="{Binding Memory}" Width="100" VerticalAlignment="Top" Height="15"/>
-                        <TextBlock Text="{Binding Memory}" TextAlignment="Center"   FontWeight="UltraBold"/>
-                    </Grid>
-                </StackPanel>
-            </StatusBarItem>
-        </StatusBar>
     </Grid>
 </controls:MetroWindow>

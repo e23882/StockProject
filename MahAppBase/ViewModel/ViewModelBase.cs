@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
-namespace MahAppBase.ViewModel
+namespace MahAppBase
 {
     /// <summary>
     /// 基礎ViewModel，繼承、實作INotifyPropertyChanged Interface
@@ -17,7 +13,7 @@ namespace MahAppBase.ViewModel
         #endregion
 
         #region MemberFunction
-        public void OnPropertyChanged(string propertyName)
+        public void OnPropertyChanged([CallerMemberName]string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

@@ -24,6 +24,8 @@ namespace MahAppBase
         public MainWindow()
         {
             InitializeComponent();
+            MainComponent mainViewModel = new MainComponent();
+            this.DataContext = mainViewModel;
         }
     }
 }

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace MahAppBase.Command
+namespace MahAppBase
 {
     /// <summary>
     /// 有參數共用Command
